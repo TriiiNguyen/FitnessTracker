@@ -1,14 +1,21 @@
 const router = require("express").Router();
-const Transaction = require("../models/transaction.js");
+const Transaction = require("../models/workout.js");
 
-router.post("/api/transaction", ({ body }, res) => {
-  Transaction.create(body)
-    .then(dbTransaction => {
-      res.json(dbTransaction);
+router.get("/api/workouts/range", (req, res) => {
+  Workout.aggregate([
+    {
+      $addFields: {
+        totalDuration: { $sum: "$exercises.duration" }
+      }
+    }])
+    .sort({ _id: -1 }).limit(7)
+    .then(dbWorkout => {
+      res.json(dbWorkout);
     })
     .catch(err => {
       res.status(400).json(err);
-    });
+    })
+
 });
 
 router.post("/api/transaction/bulk", ({ body }, res) => {
